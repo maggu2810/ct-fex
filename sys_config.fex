@@ -1,3 +1,15 @@
+;A20 PAD application
+;-------------------------------------------------------------------------------
+; 说明：
+;   1. 脚本中的字符串区分大小写，用户可以修改"="后面的数值，但是不要修改前面的字符串     
+;   2. 新增主键和子键的名称必须控制在32个字符以内，不包括32个
+;   3. 所以的注释以“;”开始，单独占据一行
+;   4. 注释不可和配置项同行，例如：主键和子健后面不能添加任何形式的注释
+;
+; gpio的描述形式：Port:端口+组内序号<功能分配><内部电阻状态><驱动能力><输出电平状态>
+;           例如：port:PA0<0><default><default><default>
+;-------------------------------------------------------------------------------
+
 [product]
 version             = "100"
 machine             = "cubietruck"
@@ -6,13 +18,14 @@ machine             = "cubietruck"
 eraseflag           = 0
 
 [target]
-boot_clock          = 912
-dcdc2_vol           = 1425
-dcdc3_vol           = 1300
-ldo2_vol            = 3000
-ldo3_vol            = 2800
-ldo4_vol            = 2800
-storage_type        = 0
+boot_clock = 912
+dcdc2_vol = 1450
+dcdc3_vol = 1300
+ldo2_vol = 3000
+ldo3_vol = 2800
+ldo4_vol = 2800
+storage_type = 0
+power_start = 0
 
 [clock]
 pll3                = 297
@@ -63,7 +76,7 @@ uart_debug_tx            =port:PF2<4><1><default><default>
 uart_debug_rx            =port:PF4<4><1><default><default>
 
 [jtag_para]
-jtag_enable         = 1
+jtag_enable         = 0
 jtag_ms             = port:PB14<3><default><default><default>
 jtag_ck             = port:PB15<3><default><default><default>
 jtag_do             = port:PB16<3><default><default><default>
@@ -81,7 +94,7 @@ standby_mode		= 0
 ;-------------------------------------------------------------------------------
 [dram_para]
 dram_baseaddr       = 0x40000000
-dram_clk            = 480
+dram_clk            = 432
 dram_type           = 3
 dram_rank_num       = 0xffffffff
 dram_chip_density   = 0xffffffff
@@ -141,24 +154,14 @@ twi0_scl            = port:PB0<2><default><default><default>
 twi0_sda            = port:PB1<2><default><default><default>
 
 [twi1_para]
-twi1_used           = 1
-twi1_scl            = port:PB18<2><default><default><default>
-twi1_sda            = port:PB19<2><default><default><default>
+twi1_used = 0
+twi1_scl = port:PB18<2><default><default><default>
+twi1_sda = port:PB19<2><default><default><default>
 
 [twi2_para]
-twi2_used           = 1
-twi2_scl            = port:PB20<2><default><default><default>
-twi2_sda            = port:PB21<2><default><default><default>
-
-[twi3_para]
-twi3_used           = 1
-twi3_scl            = port:PI0<3><default><default><default>
-twi3_sda            = port:PI1<3><default><default><default>
-
-[twi4_para]
-twi4_used           = 1
-twi4_scl            = port:PI2<3><default><default><default>
-twi4_sda            = port:PI3<3><default><default><default>
+twi2_used = 0
+twi2_scl = port:PB20<2><default><default><default>
+twi2_sda = port:PB21<2><default><default><default>
 
 ;-------------------------------------------------------------------------------
 ;uart configuration
@@ -327,19 +330,23 @@ gpio_pin_2  = port:PH10<0><default><default><0>
 
 [leds_para]
 leds_used = 1
-leds_num = 3
+leds_num = 4
 leds_pin_1 = port:PH21<1><default><default><0>
 leds_name_1 = "blue:ph21:led1"
 leds_default_1 = 0
 leds_trigger_1 = "heartbeat"
-leds_pin_2 = port:PH11<1><default><default><0>
-leds_name_2 = "blue:ph11:led3"
+leds_pin_2 = port:PH20<1><default><default><0>
+leds_name_2 = "orange:ph20:led2"
 leds_default_2 = 0
-leds_trigger_2 = "heartbeat"
-leds_pin_3 = port:PH07<1><default><default><0>
-leds_name_3 = "blue:ph07:led4"
+leds_trigger_2 = "cpu0"
+leds_pin_3 = port:PH11<1><default><default><0>
+leds_name_3 = "white:ph11:led3"
 leds_default_3 = 0
-leds_trigger_3 = "heartbeat"
+leds_trigger_3 = "cpu1"
+leds_pin_4 = port:PH07<1><default><default><0>
+leds_name_4 = "green:ph07:led4"
+leds_default_4 = 1
+leds_trigger_4 = "mmc0"
 
 
 ;-------------------------------------------------------------------------------
@@ -388,17 +395,15 @@ good_block_ratio    = 0
 ;lcd1_bright          (lcd1 init bright,the range:[0,256],default:197
 ;-------------------------------------------------------------------------------
 [disp_init]
-disp_init_enable        = 1
-disp_mode               = 0
+disp_init_enable = 1
+disp_mode = 4
+screen0_output_type = 4
+screen0_output_mode = 11
+screen1_output_type = 3
+screen1_output_mode = 5
+fb0_width = 1920
+fb0_height = 1080
 
-screen0_output_type     = 3
-screen0_output_mode     = 4
-
-screen1_output_type     = 0
-screen1_output_mode     = 4
-
-fb0_width = 1024
-fb0_height = 768
 fb0_framebuffer_num     = 2
 fb0_format              = 10
 fb0_pixel_sequence      = 0
@@ -409,7 +414,7 @@ fb1_height = 768
 fb1_framebuffer_num     = 2
 fb1_format              = 10
 fb1_pixel_sequence      = 0
-fb1_scaler_mode_enable  = 0
+fb1_scaler_mode_enable  = 1
 
 lcd0_backlight          = 197
 lcd1_backlight          = 197
@@ -1137,6 +1142,10 @@ ap6xxx_bt_wake       = port:PH24<1><default><default><0>
 ap6xxx_bt_host_wake  = port:PH25<0><default><default><0>
 ap6xxx_lpo = port:PI12<4><1><default><1>
 
+[usb_wifi_para]
+usb_wifi_used = 0
+usb_wifi_usbc_num = 2
+
 ;-------------------------------------------------------------------------------
 ;3G configuration
 ;-------------------------------------------------------------------------------
@@ -1384,4 +1393,9 @@ LV6_volt = 1100
 
 LV7_freq = 144000000
 LV7_volt = 1050
+
+[boot_disp]
+output_type = 4
+output_mode = 4
+auto_hpd = 1
 
